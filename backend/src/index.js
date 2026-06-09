@@ -25,6 +25,27 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend running' });
 });
 
+// Temporary Seed route to bypass local network block
+app.get('/api/seed', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    const users = [
+      { username: 'admin', password: 'Pass@123', role: 'Admin' },
+      { username: 'corporate', password: 'Pass@123', role: 'Corporate User' },
+      { username: 'support', password: 'Pass@123', role: 'Support User' },
+    ];
+    const adminExists = await User.findOne({ username: 'admin' });
+    if (!adminExists) {
+      await User.insertMany(users);
+      res.json({ message: 'Seeded users successfully!' });
+    } else {
+      res.json({ message: 'Users already seeded!' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Debug endpoints
 app.get('/api/debug/test-gemini', async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
